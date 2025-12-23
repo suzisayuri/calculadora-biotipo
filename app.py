@@ -3,6 +3,9 @@ from PIL import Image
 import pandas as pd
 import os
 from datetime import datetime
+# --- NOVOS IMPORTS PARA O GOOGLE SHEETS ---
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 # 1. Configuração da página
 st.set_page_config(page_title="Minha Medida, Meu Estilo", page_icon="🧵")
@@ -34,9 +37,7 @@ st.markdown(
         font-size: 32px !important; 
     }
 
-    /* --- REGRA PARA TEXTO PEQUENO (CAPTION) --- 
-       Aqui configuramos o tamanho 10px (perto do 8 que você queria) e a cor verde.
-       O st.caption foge da regra de 18px, por isso funciona. */
+    /* REGRA PARA TEXTO PEQUENO (CAPTION) */
     .stCaption, div[data-testid="stCaptionContainer"] {
         font-family: 'Helvetica', sans-serif;
         font-size: 10px !important; 
@@ -48,20 +49,35 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Funções
+# --- FUNÇÕES (DEVEM FICAR NO TOPO) ---
+
 def salvar_lead(email, nome, biotipo_resultado):
-    arquivo = 'leads_biotipo.csv'
-    data_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    novo_dado = pd.DataFrame([{
-        "Data": data_hora,
-        "Nome": nome,
-        "Email": email,
-        "Biotipo": biotipo_resultado
-    }])
-    if not os.path.isfile(arquivo):
-        novo_dado.to_csv(arquivo, index=False, sep=';')
-    else:
-        novo_dado.to_csv(arquivo, mode='a', header=False, index=False, sep=';')
+    """
+    Tenta salvar no Google Sheets. Se der erro, avisa no console.
+    """
+    try:
+        # 1. Define o escopo de acesso
+        scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
+                 "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
+        
+        # 2. Carrega as credenciais DIRETO do arquivo 'credentials.json'
+        # O arquivo deve estar na mesma pasta do app.py
+        creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+        
+        client = gspread.authorize(creds)
+        
+        # 3. Abre a planilha (TEM QUE SER O NOME EXATO QUE VOCÊ CRIOU)
+        sheet = client.open("Leads Costura").sheet1 
+        
+        # 4. Adiciona a nova linha
+        data_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        sheet.append_row([data_hora, nome, email, biotipo_resultado])
+        
+        return True # Deu certo
+        
+    except Exception as e:
+        print(f"Erro ao salvar no Google Sheets: {e}")
+        return False # Deu erro
 
 def identificar_biotipo_chave(ombro, busto, cintura, quadril):
     superior = max(ombro, busto)
@@ -201,11 +217,9 @@ with col_form1:
 with col_form2:
     email_usuario = st.text_input("Seu melhor e-mail")
 
-# --- LGPD (USANDO ST.CAPTION) ---
-# Pulamos linhas para dar espaço
+# --- LGPD ---
 st.markdown("<br><br>", unsafe_allow_html=True)
 
-# Usamos st.caption, que é feito para ser pequeno. O CSS lá em cima garante que ele seja VERDE e tamanho 10.
 st.caption("""
     🔒 **Seus dados estão seguros.** Ao clicar abaixo, você concorda que usaremos suas medidas apenas para calcular o biotipo 
     e seu e-mail para enviar o resultado e dicas de costura do projeto 'Costura que Cura'. 
@@ -222,14 +236,44 @@ if st.button(t["botao"]):
         st.error("Por favor, preencha seu nome e e-mail.")
     elif o > 0 and b > 0 and c > 0 and q > 0:
         
-        # Lógica
+        # 1. Calcula
         chave = identificar_biotipo_chave(o, b, c, q)
         dados = t["biotipos"][chave]
         
-        # Salva o Lead
-        salvar_lead(email_usuario, nome_usuario, dados['nome'])
+       # --- FUNÇÃO HÍBRIDA (FUNCIONA NA NUVEM E LOCAL) ---
+def salvar_lead(email, nome, biotipo_resultado):
+    try:
+        # 1. Define o escopo
+        scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
+                 "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
         
-        # Resultado
+        # 2. Tenta carregar dos Segredos (Nuvem)
+        if "gsheets" in st.secrets:
+            creds_dict = dict(st.secrets["gsheets"])
+            # Corrige a quebra de linha da chave privada se necessário
+            creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+            creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+        
+        # 3. Se não achar segredos, tenta arquivo local (Seu computador)
+        else:
+            creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+        
+        client = gspread.authorize(creds)
+        
+        # 4. Abre a planilha
+        sheet = client.open("Leads Costura que Cura").sheet1 
+        
+        # 5. Salva
+        data_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        sheet.append_row([data_hora, nome, email, biotipo_resultado])
+        
+        return True
+        
+    except Exception as e:
+        st.error(f"Erro na conexão: {e}")
+        return False
+        
+        # 3. Mostra o Resultado
         st.success(f"{t['resultado_titulo']} **{dados['nome']}**")
         st.info(f"**{t['dica_titulo']}** {dados['conselho']}")
         
@@ -243,7 +287,7 @@ if st.button(t["botao"]):
 # --- RODAPÉ ---
 st.write("---")
 try:
-    imagem_rodape = Image.open('seam-point-logo.jpg') 
+    imagem_rodape = Image.open('rodape.jpg') 
     col_r1, col_r2, col_r3 = st.columns([3, 1, 3]) 
     with col_r2:
         st.image(imagem_rodape, width=100) 
