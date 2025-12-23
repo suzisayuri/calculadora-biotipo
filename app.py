@@ -266,7 +266,7 @@ st.write("---")
 try:
     imagem_rodape = Image.open('logo-seampoint.jpg') 
     col_r1, col_r2, col_r3 = st.columns([3, 1, 3]) 
-    with col_r2:
+    with col_r3:
         st.image(imagem_rodape, width=100) 
 except:
     pass
