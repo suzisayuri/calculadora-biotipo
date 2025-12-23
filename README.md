@@ -1,4 +1,4 @@
-# 🧵 Calculadora de Biotipo para Costura Criativa
+# 🧵 Calculadora de Biotipo para Ajuste de Roupas
 
 Bem-vinda ao ponto de partida da sua autonomia na moda! Esta ferramenta foi desenvolvida para ajudar mulheres iniciantes na costura a descobrirem seu biotipo real e pararem de brigar com as roupas das lojas.
 
