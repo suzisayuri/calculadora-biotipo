@@ -1,91 +1,9 @@
 import streamlit as st
-from PIL import Image
-import pandas as pd
-import os
-from datetime import datetime
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 
-# 1. Configuração da página
+# Configuração da página
 st.set_page_config(page_title="Minha Medida, Meu Estilo", page_icon="🧵")
 
-# 2. CSS (ESTILOS)
-st.markdown(
-    """
-    <style>
-    /* Ajuste do Topo e Fundo */
-    .block-container {
-        padding-top: 2rem !important;
-        padding-bottom: 5rem !important;
-    }
-
-    /* REGRA GERAL: TUDO VERDE E GRANDE (#3c857e, 18px) */
-    html, body, p, li, label, .stTextInput label, .stNumberInput label, .stCheckbox label, div[data-testid="stMarkdownContainer"] p {
-        font-family: 'Helvetica', sans-serif;
-        font-size: 18px; 
-        color: #3c857e !important;
-    }
-
-    /* REGRA TÍTULOS: ROSA (#E91E63) */
-    h1, h2, h3, h1 span, h2 span, h3 span {
-        color: #E91E63 !important;
-        padding-top: 0px !important;
-    }
-    
-    h1, h1 span {
-        font-size: 32px !important; 
-    }
-
-    /* REGRA PARA TEXTO PEQUENO (CAPTION) */
-    .stCaption, div[data-testid="stCaptionContainer"] {
-        font-family: 'Helvetica', sans-serif;
-        font-size: 10px !important; 
-        color: #3c857e !important;
-        line-height: 1.2 !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# --- FUNÇÕES (DEVEM FICAR NO TOPO) ---
-
-def salvar_lead(email, nome, biotipo_resultado):
-    """
-    Função Híbrida: Tenta salvar via Secrets (Nuvem) ou Arquivo JSON (Local)
-    """
-    try:
-        # 1. Define o escopo
-        scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
-                 "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-        
-        # 2. Tenta carregar dos Segredos (Nuvem)
-        if "gsheets" in st.secrets:
-            creds_dict = dict(st.secrets["gsheets"])
-            creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
-            creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-        
-        # 3. Se não achar segredos, tenta arquivo local (Seu computador)
-        else:
-            creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-        
-        client = gspread.authorize(creds)
-        
-        # 4. Abre a planilha (CONFIRA SE O NOME ESTÁ CERTO NO GOOGLE)
-        # Notei que você mudou para "Leads Costura que Cura" no seu código.
-        # Certifique-se que no Google Drive o nome está IGUALZINHO a este abaixo:
-        sheet = client.open("Leads Costura que Cura").sheet1 
-        
-       # 5. Salva (Adicionei o genero na lista abaixo)
-        data_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        sheet.append_row([data_hora, nome, email, biotipo_resultado, genero]) 
-        
-        return True
-    except Exception as e:
-        st.error(f"Erro na conexão com Planilha: {e}")
-        return False
-    
-def identificar_biotipo_chave(ombro, busto, cintura, quadril):
+def identificar_biotipo(ombro, busto, cintura, quadril):
     superior = max(ombro, busto)
     if (0.95 <= superior / quadril <= 1.05) and (cintura <= superior * 0.75):
         return "Ampulheta"
@@ -199,77 +117,24 @@ with col1:
     o = st.number_input(t["ombro"], min_value=0.0, step=0.5)
     b = st.number_input(t["busto"], min_value=0.0, step=0.5)
 with col2:
-    c = st.number_input(t["cintura"], min_value=0.0, step=0.5)
-    q = st.number_input(t["quadril"], min_value=0.0, step=0.5)
+    c = st.number_input("Medida da Cintura (cm)", min_value=1.0, step=0.5)
+    q = st.number_input("Medida do Quadril (cm)", min_value=1.0, step=0.5)
 
-st.write("---")
-
-# --- ÁREA DO FORMULÁRIO ---
-
-# 1. Título "Receba seu resultado"
-st.markdown(f"""
-    <h3 style="padding-top: 0px; margin-bottom: 0px;">
-        📧 Receba seu resultado completo
-    </h3>
-    """, unsafe_allow_html=True)
-
-# 2. Texto Explicativo
-st.write("Para descobrir seu biotipo e receber um guia exclusivo de costura, preencha abaixo:")
-
-# Inputs de Cadastro
-col_form1, col_form2, col_form3 = st.columns([2, 2, 1]) # Dividi em 3 partes
-
-with col_form1:
-    nome_usuario = st.text_input("Seu primeiro nome")
-with col_form2:
-    email_usuario = st.text_input("Seu melhor e-mail")
-with col_form3:
-    genero_usuario = st.selectbox("Gênero", ["Feminino", "Masculino", "Outro"])
-
-# --- LGPD ---
-st.markdown("<br><br>", unsafe_allow_html=True)
-
-st.caption("""
-    🔒 **Seus dados estão seguros.** Ao clicar abaixo, você concorda que usaremos suas medidas apenas para calcular o biotipo 
-    e seu e-mail para enviar o resultado e dicas de costura do projeto 'Costura que Cura'. 
-    Você pode pedir para sair da lista a qualquer momento.
-""")
-
-aceite_lgpd = st.checkbox("Li e concordo com o uso dos meus dados para essa finalidade.")
-
-# --- BOTÃO E LÓGICA ---
-if st.button(t["botao"]):
-    if not aceite_lgpd:
-        st.warning("⚠️ Para prosseguir, você precisa concordar com o tratamento dos dados marcando a caixinha acima.")
-    elif not email_usuario or not nome_usuario:
-        st.error("Por favor, preencha seu nome e e-mail.")
-    elif o > 0 and b > 0 and c > 0 and q > 0:
+if st.button("Descobrir meu Biotipo ✨"):
+    if o and b and c and q:
+        resultado, conselho = identificar_biotipo(o, b, c, q)
         
-        # 1. Calcula o Biotipo
-        chave = identificar_biotipo_chave(o, b, c, q)
-        dados = t["biotipos"][chave]
+        st.success(f"Seu biotipo é: **{resultado}**")
         
-        # 2. Chama a função de salvar
-        # Note que adicionei genero_usuario no final
-        salvar_lead(email_usuario, nome_usuario, dados['nome'], genero_usuario)
-        
-        # 3. Mostra o Resultado
-        st.success(f"{t['resultado_titulo']} **{dados['nome']}**")
-        st.info(f"**{t['dica_titulo']}** {dados['conselho']}")
+        # Exibindo o guia visual para o usuário
+        st.info(f"**Dica de Costura para você:** {conselho}")
         
         st.write("---")
         st.write(f"### {t['extra_titulo']}")
         st.write(t["extra_texto"])
         
     else:
-        st.warning(t["aviso_preencher"])
+        st.warning("Por favor, preencha todas as medidas para o cálculo.")
 
-# --- RODAPÉ ---
-st.write("---")
-try:
-    imagem_rodape = Image.open('logo-seampoint.jpg') 
-    col_r1, col_r2, col_r3 = st.columns([3, 1, 3]) 
-    with col_r3:
-        st.image(imagem_rodape, width=100) 
-except:
-    pass
+st.sidebar.header("Sobre o Projeto")
+st.sidebar.write("A costura não é apenas técnica, é uma ferramenta de autoestima. Ao entender suas medidas, você para de tentar caber no padrão e faz o padrão caber em você.")

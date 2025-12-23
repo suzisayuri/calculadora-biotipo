@@ -14,7 +14,7 @@ Além do resultado, o app entrega uma **dica de ouro de costura** focada em valo
 
 ## 🚀 Como acessar
 Você pode utilizar a ferramenta online através do link:
-👉 [INSIRA SEU LINK DO STREAMLIT AQUI]
+👉 https://calculadora-biotipo.streamlit.app/
 
 ## 🛠️ Tecnologias Utilizadas
 * **Python 3.x**: Lógica de proporções antropométricas.
