@@ -19,6 +19,11 @@ st.markdown(
         padding-bottom: 5rem !important;
     }
 
+    /* --- FUNDO NOVO (SEU ROSA) --- */
+    .stApp {
+        background-color: #bdfff8;
+    }
+
     /* REGRA GERAL: TUDO VERDE E GRANDE (#3c857e, 18px) */
     html, body, p, li, label, .stTextInput label, .stNumberInput label, .stCheckbox label, div[data-testid="stMarkdownContainer"] p {
         font-family: 'Helvetica', sans-serif;
@@ -26,7 +31,7 @@ st.markdown(
         color: #3c857e !important;
     }
 
-    /* REGRA TÍTULOS: ROSA (#E91E63) */
+    /* REGRA TÍTULOS: ROSA MAIS FORTE (#E91E63) */
     h1, h2, h3, h1 span, h2 span, h3 span {
         color: #E91E63 !important;
         padding-top: 0px !important;
@@ -269,9 +274,9 @@ if st.button(t["botao"]):
 # --- RODAPÉ ---
 st.write("---")
 try:
-    imagem_rodape = Image.open('rodape.jpg') 
+    imagem_rodape = Image.open('logo-seampoint.jpg') 
     col_r1, col_r2, col_r3 = st.columns([3, 1, 3]) 
-    with col_r2:
+    with col_r3:
         st.image(imagem_rodape, width=100) 
 except:
     pass
