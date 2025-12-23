@@ -13,30 +13,41 @@ st.set_page_config(page_title="Minha Medida, Meu Estilo", page_icon="🧵")
 st.markdown(
     """
     <style>
-    /* --- OCULTAR MENUS DA PLATAFORMA (NOVO) --- */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    /* --- "OPÇÃO NUCLEAR" PARA ESCONDER BOTÕES --- */
     
-    /* Ajuste do Topo e Fundo */
+    /* Esconde o cabeçalho inteiro (onde fica a barra colorida e o botão Manage App) */
+    header[data-testid="stHeader"] {
+        display: none !important;
+    }
+    
+    /* Esconde o menu de hambúrguer e opções */
+    .stApp > header {
+        display: none !important;
+    }
+    
+    /* Esconde rodapé e marca d'água */
+    footer {
+        display: none !important;
+    }
+    
+    /* Garante que o topo da página suba para ocupar o espaço vazio */
     .block-container {
-        padding-top: 2rem !important;
+        padding-top: 0rem !important; /* Reduzi para 0 para subir tudo */
         padding-bottom: 5rem !important;
     }
 
-    /* --- FUNDO NOVO (SEU ROSA) --- */
+    /* --- SEUS ESTILOS ORIGINAIS CONTINUAM AQUI --- */
+    
     .stApp {
         background-color: #bdfff8;
     }
 
-    /* REGRA GERAL: TUDO VERDE E GRANDE (#3c857e, 18px) */
     html, body, p, li, label, .stTextInput label, .stNumberInput label, .stCheckbox label, div[data-testid="stMarkdownContainer"] p {
         font-family: 'Helvetica', sans-serif;
         font-size: 18px; 
         color: #3c857e !important;
     }
 
-    /* REGRA TÍTULOS: ROSA MAIS FORTE (#E91E63) */
     h1, h2, h3, h1 span, h2 span, h3 span {
         color: #E91E63 !important;
         padding-top: 0px !important;
@@ -46,7 +57,6 @@ st.markdown(
         font-size: 32px !important; 
     }
 
-    /* REGRA PARA TEXTO PEQUENO (CAPTION) */
     .stCaption, div[data-testid="stCaptionContainer"] {
         font-family: 'Helvetica', sans-serif;
         font-size: 10px !important; 
