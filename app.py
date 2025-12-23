@@ -13,6 +13,11 @@ st.set_page_config(page_title="Minha Medida, Meu Estilo", page_icon="🧵")
 st.markdown(
     """
     <style>
+    /* --- OCULTAR MENUS DA PLATAFORMA (NOVO) --- */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
     /* Ajuste do Topo e Fundo */
     .block-container {
         padding-top: 2rem !important;
