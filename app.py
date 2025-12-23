@@ -13,31 +13,35 @@ st.set_page_config(page_title="Minha Medida, Meu Estilo", page_icon="🧵")
 st.markdown(
     """
     <style>
-    /* --- "OPÇÃO NUCLEAR" PARA ESCONDER BOTÕES --- */
-    
-    /* Esconde o cabeçalho inteiro (onde fica a barra colorida e o botão Manage App) */
-    header[data-testid="stHeader"] {
-        display: none !important;
-    }
-    
-    /* Esconde o menu de hambúrguer e opções */
-    .stApp > header {
-        display: none !important;
-    }
-    
-    /* Esconde rodapé e marca d'água */
+    /* --- 1. REMOVE O RODAPÉ (O BOTÃO VERMELHO) --- */
     footer {
+        visibility: hidden;
         display: none !important;
     }
     
-    /* Garante que o topo da página suba para ocupar o espaço vazio */
-    .block-container {
-        padding-top: 0rem !important; /* Reduzi para 0 para subir tudo */
-        padding-bottom: 5rem !important;
+    .stFooter {
+        display: none !important;
+    }
+    
+    /* Remove a barra de decoração colorida no topo */
+    header {
+        visibility: hidden;
+        display: none !important;
+    }
+    
+    /* Remove o menu de opções (três pontinhos) no topo direito */
+    #MainMenu {
+        visibility: hidden;
+        display: none !important;
     }
 
-    /* --- SEUS ESTILOS ORIGINAIS CONTINUAM AQUI --- */
-    
+    /* --- 2. AJUSTES DE ESPAÇAMENTO --- */
+    .block-container {
+        padding-top: 1rem !important; /* Sobe o conteúdo para o topo */
+        padding-bottom: 5rem !important; /* Remove espaço extra no fundo */
+    }
+
+    /* --- 3. SUAS CORES E FONTES (MANTIDO IGUAL) --- */
     .stApp {
         background-color: #bdfff8;
     }
