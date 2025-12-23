@@ -59,15 +59,20 @@ def salvar_lead(email, nome, biotipo_resultado, genero):
         scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
                  "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
         
-        # 2. Tenta carregar dos Segredos (Nuvem)
+        # 2. Tenta carregar dos Segredos (Nuvem - Streamlit Cloud)
         if "gsheets" in st.secrets:
             creds_dict = dict(st.secrets["gsheets"])
-            creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+            # Corrige bug de quebra de linha se houver
+            if "private_key" in creds_dict:
+                creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
             creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
         
-        # 3. Se não achar segredos, tenta arquivo local (Seu computador)
+        # 3. Se não achar segredos, tenta arquivo local (Seu Computador)
         else:
-            creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+            # --- CORREÇÃO AQUI (O "GPS" DO ARQUIVO) ---
+            # Isso pega a pasta onde o app.py está e junta com o nome do arquivo json
+            caminho_arquivo = os.path.join(os.path.dirname(__file__), "credentials.json")
+            creds = ServiceAccountCredentials.from_json_keyfile_name(caminho_arquivo, scope)
         
         client = gspread.authorize(creds)
         
@@ -264,9 +269,9 @@ if st.button(t["botao"]):
 # --- RODAPÉ ---
 st.write("---")
 try:
-    imagem_rodape = Image.open('logo-seampoint.jpg') 
+    imagem_rodape = Image.open('rodape.jpg') 
     col_r1, col_r2, col_r3 = st.columns([3, 1, 3]) 
-    with col_r3:
+    with col_r2:
         st.image(imagem_rodape, width=100) 
 except:
     pass
