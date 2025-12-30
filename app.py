@@ -28,7 +28,7 @@ st.markdown(
     }
 
     /* --- 3. CORES E FONTES --- */
-    .stApp {background-color: #bdfff8;}
+    .stApp {background-color: #ffffff;}
 
     html, body, p, li, label, .stTextInput label, .stNumberInput label, .stCheckbox label, div[data-testid="stMarkdownContainer"] p {
         font-family: 'Helvetica', sans-serif;
