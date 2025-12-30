@@ -288,13 +288,7 @@ if botao_clicado:
                 # Se der erro no Google, não faz nada e segue o baile para mostrar o resultado
                 pass
 
-        # 3. Mostra o Resultado
-        st.markdown(f"<h2 style='text-align: center; color: #E91E63'>{t['resultado_titulo']} <br>{dados['nome']}</h2>", unsafe_allow_html=True)
-        st.info(f"**{t['dica_titulo']}** {dados['conselho']}")
-        
-        st.write("---")
-        st.markdown(f"<h3 style='text-align: center'>{t['extra_titulo']}</h3>", unsafe_allow_html=True)
-        st.write(t["extra_texto"])
+       
         
         # --- BOTÃO DE COMPRA (HOTMART) ---
         link_compra = "https://go.hotmart.com/G103558911M"
