@@ -32,11 +32,11 @@ st.markdown(
 
     html, body, p, li, label, .stTextInput label, .stNumberInput label, .stCheckbox label, div[data-testid="stMarkdownContainer"] p {
         font-family: 'Helvetica', sans-serif;
-        font-size: 13px; 
+        font-size: 18px; 
         color: #3c857e !important;
     }
 
-    /* Títulos centralizados para ficar bonito no celular */
+    /* Títulos centralizados */
     h1, h2, h3 {
         color: #E91E63 !important;
         text-align: center !important; 
@@ -46,18 +46,23 @@ st.markdown(
     /* Legendas */
     .stCaption, div[data-testid="stCaptionContainer"] {
         font-family: 'Helvetica', sans-serif;
-        font-size: 11px !important; 
+        font-size: 12px !important; 
         color: #3c857e !important;
         line-height: 1.2 !important;
         text-align: justify;
     }
 
-    /* --- 4. CENTRALIZAR IMAGENS AUTOMATICAMENTE --- */
+    /* --- 4. CENTRALIZAR IMAGENS (CORREÇÃO FINAL MOBILE) --- */
+    /* Isso força a caixa da imagem a ficar no meio da tela */
     div[data-testid="stImage"] {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100% !important;
+        margin: auto;
     }
+    
+    /* Isso garante que a imagem em si obedeça o centro */
     div[data-testid="stImage"] > img {
         display: block;
         margin-left: auto;
@@ -67,6 +72,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 
 # --- FUNÇÕES ---
 
@@ -186,10 +192,10 @@ with col_lang2:
 
 t = traducoes[idioma]
 
-# 2. LOGO CENTRALIZADA (SEM COLUNAS = SEM ERRO NO CELULAR)
+# 2. LOGO
 try:
     imagem = Image.open('Logo-costura-que-cura.jpg')
-    # O CSS já vai centralizar isso automaticamente
+    # Sem colunas. O CSS acima vai cuidar de centralizar.
     st.image(imagem, width=280) 
 except:
     pass
