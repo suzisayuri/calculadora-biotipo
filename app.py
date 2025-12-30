@@ -32,7 +32,7 @@ st.markdown(
 
     html, body, p, li, label, .stTextInput label, .stNumberInput label, .stCheckbox label, div[data-testid="stMarkdownContainer"] p {
         font-family: 'Helvetica', sans-serif;
-        font-size: 18px; 
+        font-size: 13px; 
         color: #3c857e !important;
     }
 
@@ -46,7 +46,7 @@ st.markdown(
     /* Legendas */
     .stCaption, div[data-testid="stCaptionContainer"] {
         font-family: 'Helvetica', sans-serif;
-        font-size: 12px !important; 
+        font-size: 11px !important; 
         color: #3c857e !important;
         line-height: 1.2 !important;
         text-align: justify;
