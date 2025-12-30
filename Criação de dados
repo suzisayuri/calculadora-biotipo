@@ -1,0 +1,88 @@
+# %%
+import pandas as pd
+import numpy as np
+
+# 1. Trazendo a SUA função de lógica de negócio (A mesma do app)
+def identificar_biotipo_chave(ombro, busto, cintura, quadril):
+    superior = max(ombro, busto)
+    # Proteção para evitar divisão por zero (caso raro na geração aleatória)
+    if quadril == 0: return "Indefinido"
+    
+    if (0.95 <= superior / quadril <= 1.05) and (cintura <= superior * 0.75):
+        return "Ampulheta"
+    elif quadril > (superior * 1.05):
+        return "Pera"
+    elif superior > (quadril * 1.05):
+        return "Triangulo"
+    elif cintura >= superior and cintura >= quadril:
+        return "Oval"
+    else:
+        return "Retangulo"
+
+# %%
+# 2. Configurações da Simulação
+np.random.seed(42)  # Garante que os números sejam sempre os mesmos ao rodar
+n_samples = 5000     # Quantidade de leads simulados
+
+# %%
+# 3. Geração Inteligente de Dados
+# Vamos basear as medidas em um "Tamanho de Confecção Base" (36 ao 56)
+# Isso ajuda a manter a proporcionalidade (quem veste 50 tem medidas maiores que 36)
+# --- CÉLULA 3 ATUALIZADA (V2.0) ---
+
+n_samples = 5000
+tamanhos_base = np.random.choice(range(36, 58, 2), n_samples, 
+                                 p=[0.1, 0.2, 0.2, 0.2, 0.1, 0.1, 0.05, 0.02, 0.02, 0.01, 0.0])
+
+dados = []
+
+for tamanho in tamanhos_base:
+    # Busto base
+    busto = (tamanho * 2.2) + np.random.normal(0, 4)
+    
+    # --- A MUDANÇA MÁGICA AQUI ---
+    # Agora a cintura não é fixa em 85%. Ela varia!
+    # Sorteamos um "formato" aleatório para a pessoa antes de calcular
+    fator_cintura = np.random.choice([0.75, 0.85, 0.95, 1.05], p=[0.2, 0.5, 0.2, 0.1])
+    # Se cair 1.05, a cintura será maior que o busto (Chance de Oval)
+    
+    cintura = (busto * fator_cintura) + np.random.normal(0, 5)
+    
+    # Quadril também varia mais agora (para não ser tudo Pera)
+    fator_quadril = np.random.choice([0.95, 1.05, 1.15], p=[0.2, 0.5, 0.3])
+    quadril = (busto * fator_quadril) + np.random.normal(0, 6)
+    
+    ombro = (busto * 0.95) + np.random.normal(0, 3)
+    
+    # Arredondamentos
+    busto = round(busto * 2) / 2
+    cintura = round(cintura * 2) / 2
+    quadril = round(quadril * 2) / 2
+    ombro = round(ombro * 2) / 2
+
+    genero = np.random.choice(['Feminino', 'Masculino'], p=[0.90, 0.10])
+    
+    # Classifica
+    biotipo = identificar_biotipo_chave(ombro, busto, cintura, quadril)
+    
+    dados.append([genero, ombro, busto, cintura, quadril, biotipo])
+
+print(f"Gerados {n_samples} registros com nova lógica (com Ovais)!")
+
+# %%
+# 4. Criando o DataFrame
+df = pd.DataFrame(dados, columns=['genero', 'ombro', 'busto', 'cintura', 'quadril', 'biotipo'])
+
+# Visualizar as primeiras linhas
+print("--- Primeiras 5 linhas do Dataset Gerado ---")
+print(df.head())
+
+# Visualizar a distribuição dos biotipos gerados
+print("\n--- Contagem de Biotipos ---")
+print(df['biotipo'].value_counts())
+
+# %%
+# 5. Salvando para CSV (Isso vai para a pasta 'data' do seu projeto)
+df.to_csv('dados_biotipos_simulados.csv', index=False)
+print("\nArquivo 'dados_biotipos_simulados.csv' salvo com sucesso!")
+# %%
