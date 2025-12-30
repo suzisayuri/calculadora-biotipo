@@ -265,8 +265,39 @@ if botao_clicado:
         st.markdown(f"<h3 style='text-align: center'>{t['extra_titulo']}</h3>", unsafe_allow_html=True)
         st.write(t["extra_texto"])
         
-        # --- BOTÃO DE COMPRA ---
-        link_compra = "https://SEU_LINK_DE_COMPRA_AQUI.com"
+      # --- VERSÃO FINAL (LIMPA E SEGURA) ---
+
+if botao_clicado:
+    # Validações iniciais
+    if not aceite_lgpd:
+        st.warning("⚠️ " + ("Marque a caixinha de concordância." if idioma == "Português" else "Check the agreement box."))
+    elif not email_usuario or not nome_usuario:
+        st.error("⚠️ " + ("Preencha seu nome e e-mail." if idioma == "Português" else "Fill in your name and email."))
+    elif o > 0 and b > 0 and c > 0 and q > 0:
+        
+        # 1. Identifica o Biotipo
+        chave = identificar_biotipo_chave(o, b, c, q)
+        dados = t["biotipos"][chave]
+        
+        # 2. Salva no Google Sheets (Com proteção contra falhas)
+        # O spinner avisa o usuário que algo está acontecendo
+        with st.spinner('Analisando suas medidas... / Analyzing...'):
+            try:
+                salvar_lead(email_usuario, nome_usuario, dados['nome'], genero_usuario)
+            except:
+                # Se der erro no Google, não faz nada e segue o baile para mostrar o resultado
+                pass
+
+        # 3. Mostra o Resultado
+        st.markdown(f"<h2 style='text-align: center; color: #E91E63'>{t['resultado_titulo']} <br>{dados['nome']}</h2>", unsafe_allow_html=True)
+        st.info(f"**{t['dica_titulo']}** {dados['conselho']}")
+        
+        st.write("---")
+        st.markdown(f"<h3 style='text-align: center'>{t['extra_titulo']}</h3>", unsafe_allow_html=True)
+        st.write(t["extra_texto"])
+        
+        # --- BOTÃO DE COMPRA (HOTMART) ---
+        link_compra = "https://go.hotmart.com/G103558911M"
         
         st.markdown(f"""
             <a href="{link_compra}" target="_blank" style="text-decoration: none;">
@@ -281,6 +312,7 @@ if botao_clicado:
                     margin-top: 20px; 
                     margin-bottom: 20px; 
                     box-shadow: 0px 4px 15px rgba(233, 30, 99, 0.4);
+                    transition: 0.3s;
                 ">
                     {t['botao_compra']}
                 </div>
@@ -288,6 +320,7 @@ if botao_clicado:
             """, unsafe_allow_html=True)
         
     else:
+        # Caso o usuário tenha deixado algum campo como 0.00
         st.warning(t["aviso_preencher"])
 
 # --- RODAPÉ ---
