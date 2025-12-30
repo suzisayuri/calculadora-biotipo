@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import base64
 
 # 1. Configuração da página
 st.set_page_config(page_title="Minha Medida, Meu Estilo", page_icon="🧵")
@@ -192,13 +193,23 @@ with col_lang2:
 
 t = traducoes[idioma]
 
-# 2. LOGO
+# 2. LOGO CENTRALIZADA (MÉTODO INFALÍVEL - HTML PURO)
 try:
-    imagem = Image.open('Logo-costura-que-cura.jpg')
-    # Sem colunas. O CSS acima vai cuidar de centralizar.
-    st.image(imagem, width=280) 
-except:
-    pass
+    # Lê a imagem e converte para base64 (texto que o HTML entende)
+    with open("Logo-costura-que-cura.jpg", "rb") as f:
+        data = base64.b64encode(f.read()).decode("utf-8")
+    
+    # Desenha usando HTML direto, ignorando as regras do Streamlit
+    st.markdown(
+        f"""
+        <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 10px; margin-bottom: 10px;">
+            <img src="data:image/jpg;base64,{data}" width="280" style="max-width: 100%;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+except Exception as e:
+    st.warning(f"Erro ao carregar logo: {e}")
 
 # Título Principal
 st.title(t["titulo"])
@@ -326,7 +337,19 @@ if botao_clicado:
 # --- RODAPÉ ---
 st.write("---")
 try:
-    imagem_rodape = Image.open('logo-seampoint.jpg') 
-    st.image(imagem_rodape, width=100) # CSS vai centralizar automático
-except:
+    # Lê a imagem do rodapé e converte para base64
+    with open("logo-seampoint.jpg", "rb") as f:
+        data_rodape = base64.b64encode(f.read()).decode("utf-8")
+    
+    # Desenha centralizado usando HTML
+    st.markdown(
+        f"""
+        <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 10px;">
+            <img src="data:image/jpg;base64,{data_rodape}" width="100" style="max-width: 100%;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+except Exception as e:
+    # Se der erro (arquivo não encontrado), não mostra nada
     pass
