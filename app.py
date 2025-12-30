@@ -199,16 +199,27 @@ st.title(t["titulo"])
 st.write(f"<div style='text-align: center'>{t['subtitulo']}</div>", unsafe_allow_html=True)
 st.write("---")
 
-# Inputs das Medidas (Mantendo colunas pois input fica bom lado a lado no PC, e empilha no celular)
+# Inputs das Medidas
 col1, col2 = st.columns(2)
+
 with col1:
-    o = st.number_input(t["ombro"], min_value=0.0, step=0.5)
-    b = st.number_input(t["busto"], min_value=0.0, step=0.5)
+    # Adicionei value=None e placeholder="0.00"
+    o_input = st.number_input(t["ombro"], min_value=0.0, step=0.5, value=None, placeholder="0.00")
+    b_input = st.number_input(t["busto"], min_value=0.0, step=0.5, value=None, placeholder="0.00")
+
 with col2:
-    c = st.number_input(t["cintura"], min_value=0.0, step=0.5)
-    q = st.number_input(t["quadril"], min_value=0.0, step=0.5)
+    c_input = st.number_input(t["cintura"], min_value=0.0, step=0.5, value=None, placeholder="0.00")
+    q_input = st.number_input(t["quadril"], min_value=0.0, step=0.5, value=None, placeholder="0.00")
 
 st.write("---")
+
+# --- TRATAMENTO DE DADOS ---
+# Como iniciamos com None (vazio), precisamos converter para 0.0 se a pessoa não digitar nada
+# para não dar erro de cálculo lá na frente.
+o = o_input if o_input is not None else 0.0
+b = b_input if b_input is not None else 0.0
+c = c_input if c_input is not None else 0.0
+q = q_input if q_input is not None else 0.0
 
 # --- ÁREA DO FORMULÁRIO ---
 st.markdown(f"""
