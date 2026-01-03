@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 
-# 1. Trazendo a SUA função de lógica de negócio (A mesma do app)
+# 1. Identificação de biotipo
 def identificar_biotipo_chave(ombro, busto, cintura, quadril):
     superior = max(ombro, busto)
     # Proteção para evitar divisão por zero (caso raro na geração aleatória)
@@ -26,8 +26,7 @@ n_samples = 5000     # Quantidade de leads simulados
 
 # %%
 # 3. Geração Inteligente de Dados
-# Vamos basear as medidas em um "Tamanho de Confecção Base" (36 ao 56)
-# Isso ajuda a manter a proporcionalidade (quem veste 50 tem medidas maiores que 36)
+# Medidas baseadas em "Tamanho de Confecção Base" (36 ao 56)
 # --- CÉLULA 3 ATUALIZADA (V2.0) ---
 
 n_samples = 5000
